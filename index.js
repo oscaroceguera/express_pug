@@ -1,32 +1,27 @@
-var express = require('express')
-var path = require('path')
-var router = express.Router()
-
-
-var app = express()
-
-app.set('views', path.join(__dirname, '/views'))
-app.set('view engine', 'pug')
+const express = require('express')
+const path = require('path')
+const pug = require('pug')
+const pdf = require('html-pdf')
+const app = express()
 
 app.get('/', (req, res) => {
-  res.render('index', {
-    title: 'Express con pug',
-    message: 'Hola estamos en el home'
+  var compiler = pug.compileFile(path.join(__dirname, '/views/index.pug'))
+  var html = compiler({
+    title: 'jojojt',
+    message: 'hola mundito feli',
+    email: 'osacr@email.com'
   })
-})
 
-app.get('/nombre/:myName', (req, res) => {
-  res.render('index', {
-    title: 'Express con pug',
-    message: `Hola ${req.params.myName}`
-  })
-})
+  const pdfOptions = {
+    format: 'Letter',
+    phantomPath: "./node_modules/phantomjs-prebuilt/bin/phantomjs",
+  };
 
-app.get('/panel', (req, res) => {
-  res.render('index', {
-    title: 'Express con pug',
-    message: 'Hola en el dashboard'
+  pdf.create(html, pdfOptions).toBuffer((err, response) => {
+    res.attachment('filename.pdf')
+    res.send(response)
   })
+
 })
 
 app.use( (req, res, next) => {
